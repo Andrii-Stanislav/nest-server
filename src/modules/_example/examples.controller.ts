@@ -39,7 +39,7 @@ export class ExamplesController {
 
   @Patch('/:id')
   async update(@Param('id') id: number, @Body() dto: UpdateExampleDto) {
-    return this.examplesService.updatePlayer(id, dto);
+    return this.examplesService.update(id, dto);
   }
 
   @Delete('/:id')

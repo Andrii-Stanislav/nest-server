@@ -1,5 +1,5 @@
 import { Module, forwardRef } from '@nestjs/common';
-import { SequelizeModule } from '@nestjs/sequelize';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { AuthModule } from '../auth/auth.module';
 
@@ -10,10 +10,7 @@ import { Example } from './examples.model';
 @Module({
   controllers: [ExamplesController],
   providers: [ExamplesService],
-  imports: [
-    SequelizeModule.forFeature([Example]),
-    forwardRef(() => AuthModule),
-  ],
+  imports: [TypeOrmModule.forFeature([Example]), forwardRef(() => AuthModule)],
   exports: [ExamplesService],
 })
 export class ExamplesModule {}

@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/sequelize';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 import { Example } from './examples.model';
 import { CreateExampleDto, UpdateExampleDto } from './dto';
@@ -7,29 +8,27 @@ import { CreateExampleDto, UpdateExampleDto } from './dto';
 @Injectable()
 export class ExamplesService {
   constructor(
-    @InjectModel(Example) private examplesRepository: typeof Example,
+    @InjectRepository(Example)
+    private examplesRepository: Repository<Example>,
   ) {}
 
   async getAll() {
-    return await this.examplesRepository.findAll();
+    return await this.examplesRepository.find();
   }
 
   async getById(id: number) {
-    return await this.examplesRepository.findOne({
-      where: { id },
-      include: { all: true },
-    });
+    return await this.examplesRepository.findOneBy({ id });
   }
 
   async create(dto: CreateExampleDto) {
-    return await this.examplesRepository.create(dto);
+    return await this.examplesRepository.save(dto);
   }
 
-  async updatePlayer(playerId: number, dto: UpdateExampleDto) {
-    await this.examplesRepository.update(dto, { where: { id: playerId } });
+  async update(id: number, dto: UpdateExampleDto) {
+    await this.examplesRepository.update({ id }, dto);
   }
 
   async remove(id: number) {
-    return await this.examplesRepository.destroy({ where: { id } });
+    return await this.examplesRepository.delete(id);
   }
 }

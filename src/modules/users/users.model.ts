@@ -1,49 +1,39 @@
-import { Model, Table, Column, DataType } from 'sequelize-typescript';
+import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 
-interface UserCreationAttributes {
-  email: string;
-  password: string;
-}
-
-@Table({ tableName: 'users' })
-export class User extends Model<User, UserCreationAttributes> {
+@Entity({ name: 'users' })
+export class User {
   @ApiProperty({ example: 123, description: 'Uniqe ID' })
-  @Column({
-    type: DataType.INTEGER,
-    unique: true,
-    autoIncrement: true,
-    primaryKey: true,
-  })
+  @PrimaryGeneratedColumn({ type: 'integer' })
   id: number;
 
   @ApiProperty({ example: 'qweqwe@gmail.com', description: 'User email' })
   @Column({
-    type: DataType.STRING,
+    type: 'varchar',
     unique: true,
-    allowNull: false,
+    nullable: false,
   })
   email: string;
 
   @ApiProperty({ example: 'asd123', description: 'Password' })
   @Column({
-    type: DataType.STRING,
-    allowNull: false,
+    type: 'varchar',
+    nullable: false,
   })
   password: string;
 
   @ApiProperty({ example: true })
   @Column({
-    type: DataType.BOOLEAN,
-    defaultValue: false,
+    type: 'bool',
+    default: false,
   })
   banned: boolean;
 
   @ApiProperty({ example: 'Bad boy', description: 'Ban reason' })
   @Column({
-    type: DataType.STRING,
-    allowNull: true,
-    defaultValue: null,
+    type: 'varchar',
+    nullable: true,
+    default: null,
   })
   banReason: string;
 }
