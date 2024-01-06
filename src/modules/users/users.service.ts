@@ -1,30 +1,28 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
-import { InjectModel } from '@nestjs/sequelize';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 import { User } from './users.model';
 import { CreateUserDto, UpdateUserDto } from './dto';
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectModel(User) private userRepository: typeof User) {}
+  constructor(
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
+  ) {}
   async getAllUsers() {
-    const users = await this.userRepository.findAll({ include: { all: true } });
+    const users = await this.userRepository.find();
     return users;
   }
 
   async getUserByEmail(email: string) {
-    const user = await this.userRepository.findOne({
-      where: { email },
-      include: { all: true },
-    });
+    const user = await this.userRepository.findOneBy({ email });
     return user;
   }
 
   async getUserById(id: number) {
-    const user = await this.userRepository.findOne({
-      where: { id },
-      include: { all: true },
-    });
+    const user = await this.userRepository.findOneBy({ id });
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
@@ -32,15 +30,11 @@ export class UsersService {
   }
 
   async createUser(dto: CreateUserDto) {
-    const user = await this.userRepository.create(dto);
+    const user = await this.userRepository.save(dto);
     return user;
   }
 
   async updateUserById(id: number, dto: UpdateUserDto) {
-    const [, [user]] = await this.userRepository.update(dto, {
-      where: { id: id },
-      returning: true,
-    });
-    return user;
+    return await this.userRepository.update({ id }, dto);
   }
 }

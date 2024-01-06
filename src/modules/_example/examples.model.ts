@@ -1,19 +1,10 @@
-import { Model, Table, Column, DataType } from 'sequelize-typescript';
+import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
-interface CreationAttributes {
-  name: string;
-}
-
-@Table({ tableName: 'examples' })
-export class Example extends Model<Example, CreationAttributes> {
-  @Column({
-    type: DataType.INTEGER,
-    unique: true,
-    autoIncrement: true,
-    primaryKey: true,
-  })
+@Entity({ name: 'examples' })
+export class Example {
+  @PrimaryGeneratedColumn({ type: 'integer' })
   id: number;
 
-  @Column({ type: DataType.STRING })
+  @Column({ type: 'varchar' })
   name: string;
 }
