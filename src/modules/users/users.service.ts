@@ -16,17 +16,20 @@ export class UsersService {
     return users;
   }
 
-  async getUserByEmail(email: string) {
-    const user = await this.userRepository.findOneBy({ email });
-    return user;
-  }
-
   async getUserById(id: number) {
     const user = await this.userRepository.findOneBy({ id });
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
     return user;
+  }
+
+  async getUserByEmail(email: string) {
+    return await this.userRepository.findOneBy({ email });
+  }
+
+  async getUserByResetPasswordCode(resetPasswordCode: string) {
+    return await this.userRepository.findOneBy({ resetPasswordCode });
   }
 
   async createUser(dto: CreateUserDto) {

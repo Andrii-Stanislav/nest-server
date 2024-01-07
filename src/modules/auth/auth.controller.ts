@@ -4,7 +4,7 @@ import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { CreateUserDto } from '../users/dto';
 
 import { AuthService } from './auth.service';
-import { RequestResetPasswordDto } from './dto';
+import { RequestResetPasswordDto, ConfirmResetPasswordDto } from './dto';
 
 @ApiTags('Auth route')
 @Controller('auth')
@@ -30,5 +30,12 @@ export class AuthController {
   @Post('/requestResetPassword')
   requestResetPassword_(@Body() body: RequestResetPasswordDto) {
     return this.authService.requestResetPassword(body.email);
+  }
+
+  @ApiOperation({ summary: 'Confirm reset password' })
+  @ApiResponse({ status: 200, type: null })
+  @Post('/confirmResetPassword_')
+  confirmResetPassword_(@Body() body: ConfirmResetPasswordDto) {
+    return this.authService.confirmResetPassword(body);
   }
 }
