@@ -6,16 +6,22 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
+import * as uuid from 'uuid';
+
+import { MailService } from '../mail/mail.service';
 
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { UsersService } from '../users/users.service';
 import { User } from '../users/users.model';
+
+import { ConfirmResetPasswordDto } from './dto';
 
 @Injectable()
 export class AuthService {
   constructor(
     private userService: UsersService,
     private jwtService: JwtService,
+    private mailService: MailService,
   ) {}
 
   public async login(userDto: CreateUserDto) {
@@ -35,10 +41,7 @@ export class AuthService {
       );
     }
 
-    const hashPassword = await bcrypt.hash(
-      userDto.password,
-      Number(process.env.PASSWORD_HASH_SALT),
-    );
+    const hashPassword = await this.generateHashPassword(userDto.password);
 
     const user = await this.userService.createUser({
       ...userDto,
@@ -50,11 +53,43 @@ export class AuthService {
     return { token, user };
   }
 
+  async requestResetPassword(email: string) {
+    const resetPasswordCode = uuid.v4();
+    await this.userService.updateUserByEmail(email, { resetPasswordCode });
+    await this.mailService.sendRequestResetPassword(email, resetPasswordCode);
+    return { message: 'Reset password code sent to your email' };
+  }
+
+  async confirmResetPassword({
+    resetPasswordCode,
+    password,
+  }: ConfirmResetPasswordDto) {
+    const user = await this.userService.getUserByResetPasswordCode(
+      resetPasswordCode,
+    );
+
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+
+    const hashPassword = await this.generateHashPassword(password);
+    await this.userService.updateUserById(user.id, {
+      password: hashPassword,
+      resetPasswordCode: null,
+    });
+
+    return { message: 'Password updated' };
+  }
+
   // private methods
 
   private generateToken(user: User) {
     const payload = { email: user.email, id: user.id };
     return { token: this.jwtService.sign(payload) };
+  }
+
+  private async generateHashPassword(password: string) {
+    return await bcrypt.hash(password, Number(process.env.PASSWORD_HASH_SALT));
   }
 
   private async validateUser(userDto: CreateUserDto) {
