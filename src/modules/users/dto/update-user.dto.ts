@@ -31,4 +31,9 @@ export class UpdateUserDto {
   @IsOptional()
   @IsString({ message: 'Ban reason have to be string' })
   readonly banReason?: string;
+
+  @ApiProperty({ example: 'qweqwe', description: 'Code for reset password' })
+  @IsOptional()
+  @IsString({ message: 'Reset password code have to be string' })
+  readonly resetPasswordCode?: string;
 }

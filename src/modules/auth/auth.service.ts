@@ -6,6 +6,9 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
+import * as uuid from 'uuid';
+
+import { MailService } from '../mail/mail.service';
 
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { UsersService } from '../users/users.service';
@@ -16,6 +19,7 @@ export class AuthService {
   constructor(
     private userService: UsersService,
     private jwtService: JwtService,
+    private mailService: MailService,
   ) {}
 
   public async login(userDto: CreateUserDto) {
@@ -48,6 +52,13 @@ export class AuthService {
     const { token } = this.generateToken(user);
     user.password = '';
     return { token, user };
+  }
+
+  async requestResetPassword(email: string) {
+    const resetPasswordCode = uuid.v4();
+    await this.userService.updateUserByEmail(email, { resetPasswordCode });
+    await this.mailService.sendRequestResetPassword(email, resetPasswordCode);
+    return { message: 'Reset password code sent to your email' };
   }
 
   // private methods

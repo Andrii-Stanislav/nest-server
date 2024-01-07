@@ -37,4 +37,8 @@ export class UsersService {
   async updateUserById(id: number, dto: UpdateUserDto) {
     return await this.userRepository.update({ id }, dto);
   }
+
+  async updateUserByEmail(email: string, dto: UpdateUserDto) {
+    return await this.userRepository.update({ email }, dto);
+  }
 }

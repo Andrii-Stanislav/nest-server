@@ -36,4 +36,11 @@ export class User {
     default: null,
   })
   banReason: string;
+
+  @Column({
+    type: 'varchar',
+    nullable: true,
+    default: null,
+  })
+  resetPasswordCode: string;
 }
